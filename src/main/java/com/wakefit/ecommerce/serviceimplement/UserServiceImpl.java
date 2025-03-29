@@ -2,22 +2,19 @@ package com.wakefit.ecommerce.serviceimplement;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wakefit.ecommerce.dto.ProductDTO;
-import com.wakefit.ecommerce.entity.Address;
-import com.wakefit.ecommerce.entity.Cart;
-import com.wakefit.ecommerce.entity.Category;
-import com.wakefit.ecommerce.entity.Feedback;
-import com.wakefit.ecommerce.entity.Order;
-import com.wakefit.ecommerce.entity.Product;
-import com.wakefit.ecommerce.entity.User;
+import com.wakefit.ecommerce.entity.*;
 import com.wakefit.ecommerce.exception.ResourceNotFoundException;
 import com.wakefit.ecommerce.repository.CategoryRepository;
+import com.wakefit.ecommerce.repository.RoleRepository;
 import com.wakefit.ecommerce.repository.UserRepository;
 import com.wakefit.ecommerce.service.ProductService;
 import com.wakefit.ecommerce.service.UserService;
@@ -30,13 +27,23 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private ProductService productService;
 
     @Autowired
-    private CategoryRepository categoryRepository;  
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public User saveUser(User user) {
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) { 
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
         if (user.getCart() != null) {
             saveCart(user.getCart());
         }
@@ -55,11 +62,11 @@ public class UserServiceImpl implements UserService {
                 saveFeedback(feedback);
             }
         }
+
         return userRepository.save(user);
     }
 
     private void saveCart(Cart cart) {
-       
     }
 
     private void saveOrder(Order order) {
@@ -78,7 +85,6 @@ public class UserServiceImpl implements UserService {
     }
 
     private void saveAddress(Address address) {
-        // Implement address save logic
     }
 
     private void saveFeedback(Feedback feedback) {
@@ -99,17 +105,37 @@ public class UserServiceImpl implements UserService {
         if (existingUserOptional.isPresent()) {
             User existingUser = existingUserOptional.get();
             existingUser.setUserName(user.getUserName());
-            existingUser.setPassword(user.getPassword());
+            if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
             existingUser.setEmail(user.getEmail());
             existingUser.setFirstName(user.getFirstName());
             existingUser.setLastName(user.getLastName());
             existingUser.setMobNo(user.getMobNo());
-            existingUser.setRole(user.getRole());
+
+            Set<Role> roles = user.getRoles();
+            if (roles != null && !roles.isEmpty()) {
+                existingUser.setRoles(roles);
+            }
 
             return userRepository.save(existingUser);
         } else {
             throw new ResourceNotFoundException("User not found with id " + userId);
         }
+    }
+
+    @Override
+    public User register(User user) {
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Role defaultRole = roleRepository.findByRole("customer")
+                    .orElseThrow(() -> new RuntimeException("Error: Role 'customer' is not found."));
+            user.setRoles(Set.of(defaultRole));
+        }
+
+        return saveUser(user);
     }
 
     @Override

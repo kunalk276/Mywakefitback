@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.wakefit.ecommerce.dto.ProductDTO;
 import com.wakefit.ecommerce.entity.Category;
 import com.wakefit.ecommerce.entity.Product;
+import com.wakefit.ecommerce.exception.ResourceNotFoundException;
 import com.wakefit.ecommerce.repository.CategoryRepository;
 import com.wakefit.ecommerce.repository.ProductRepository;
 import com.wakefit.ecommerce.service.ProductService;
@@ -26,9 +27,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO addProduct(ProductDTO productDto) {
         Product product = convertToEntity(productDto);
+
+        if (productDto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productDto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + productDto.getCategoryId()));
+            product.setCategory(category);
+        }
+
         product = productRepository.save(product);
         return convertToDto(product);
     }
+
 
     @Override
     public ProductDTO getProductById(Long productId) {
@@ -103,7 +112,33 @@ public class ProductServiceImpl implements ProductService {
         }
         return null;
     }
+//    @Override
+//    public void purchaseProduct(Long productId, int quantity) {
+//        Product product = productRepository.findById(productId)
+//            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId)); //lambda expression
+//        
+//        if (product.getStockQuantity() >= quantity) {
+//            product.setStockQuantity(product.getStockQuantity() - quantity);
+//            productRepository.save(product); 
+//        } else {
+//            throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
+//        }
+//    }
 
+    @Override
+    public void purchaseProduct(Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        if (product.getStockQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient stock available.");
+        }
+
+        product.setStockQuantity(product.getStockQuantity() - quantity); 
+        productRepository.save(product); 
+    }
+
+    
     private ProductDTO convertToDto(Product product) {
         ProductDTO productDto = new ProductDTO();
         productDto.setProductId(product.getProductId());
@@ -133,4 +168,6 @@ public class ProductServiceImpl implements ProductService {
         }
         return product;
     }
+    
+    
 }

@@ -17,5 +17,9 @@ public class AddressDTO {
     private String state;
     private String pincode;
     
-    private Long userId; // Optional, if you want to track which user this address belongs to
+    private Long userId;
+    private String userName;
+    private String email;
+    private Long billingOrderId;
+    
 }

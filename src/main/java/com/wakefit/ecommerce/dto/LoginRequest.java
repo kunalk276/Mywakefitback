@@ -1,8 +1,13 @@
 package com.wakefit.ecommerce.dto;
 
 import java.util.Date;
+import java.util.List;
+
+import com.wakefit.ecommerce.entity.Address;
+import com.wakefit.ecommerce.entity.Product;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,15 +16,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FeedbackDTO {
-
-    private Long feedbackId;
-    private int rating;
-    private String comment;
-    private Date feedbackDate;
-    private Long userId;
-    private Long productId;
-    private String name;
-    private String images;
+public class LoginRequest {
     private String userName;
+    private String password;
 }

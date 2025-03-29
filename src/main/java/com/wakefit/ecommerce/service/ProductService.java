@@ -21,4 +21,7 @@ public interface ProductService {
     List<ProductDTO> getProductsByCategory(Long categoryId);
     
     ProductDTO addProductToCategory(Long productId, Long categoryId);
+
+	void purchaseProduct(Long productId, int quantity);
+   
 }
