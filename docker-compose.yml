@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: wakefit-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ADI#27#nal
+      MYSQL_DATABASE: wakefitfurniture
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ADI#27#nal
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - wakefit-net
+
+  springboot-app:
+    build: .
+    container_name: wakefit-backend
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/wakefitfurniture
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ADI#27#nal
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    networks:
+      - wakefit-net
+
+volumes:
+  mysql_data:
+
+networks:
+  wakefit-net:
