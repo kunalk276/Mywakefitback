@@ -1,7 +1,9 @@
 package com.wakefit.ecommerce.dto;
 
 import com.wakefit.ecommerce.entity.Address;
+import com.wakefit.ecommerce.entity.Cart;
 import com.wakefit.ecommerce.entity.Product;
+import com.wakefit.ecommerce.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +18,13 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderDTO {
     private Long orderId;
+    private User user;
     private Date orderDate;
     private double totalAmount;
     private String paymentStatus;
     private String orderStatus;
-    private Address billingAddress; // Include billing address
-    private Address shippingAddress; // Include shipping address
-    private List<Product> products; // List of products in the order
+    private Address billingAddress;
+    private Cart cart;
+    private List<Product> products;
+    private List<PaymentDTO> payments;
 }

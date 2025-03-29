@@ -17,6 +17,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,27 +43,28 @@ public class Order {
     private User user;
 
     @Column(name = "order_date")
+    @PastOrPresent(message = "Order date cannot be in the future")
     private Date orderDate;
 
-    @Column(name = "total_amount")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Total amount must be greater than 0")
+    @Column(name = "total_amount", nullable = false)
     private double totalAmount;
 
-    @Column(name = "payment_status")
+    @NotBlank(message = "Payment status is required")
+    @Column(name = "payment_status", nullable = false)
     private String paymentStatus;
 
-    @Column(name = "order_status")
+    @NotBlank(message = "Order status is required")
+    @Column(name = "order_status", nullable = false)
     private String orderStatus;
 
-    @OneToMany(mappedBy = "billingaddress")
-    private List<Address> billingOrders;
-
-    @ManyToOne
-    @JoinColumn(name = "shipping_address_id")
-    private Address shippingaddress;
+   
 
     @OneToOne
     @JoinColumn(name = "billing_address_id")
     private Address billingAddress;
+
+    
 
     @ManyToOne
     @JoinColumn(name = "cart_id")

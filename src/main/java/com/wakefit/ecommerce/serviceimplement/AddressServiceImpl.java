@@ -62,4 +62,10 @@ public class AddressServiceImpl implements AddressService {
 		// TODO Auto-generated method stub
 		return addressRepository.findAll();
 	}
+	
+	@Override
+	public List<Address> getAddressesByUserId(Long userId) {
+	    return addressRepository.findByUser_UserId(userId); 
+	}
+	
 }

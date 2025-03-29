@@ -6,6 +6,8 @@ import com.wakefit.ecommerce.service.FeedbackService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -16,11 +18,21 @@ public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
 
-    @PostMapping
-    public FeedbackDTO addFeedback(@RequestBody FeedbackDTO feedbackDTO) {
-       
-        return feedbackService.addFeedback(feedbackDTO);
+    @PostMapping("/add")
+    public ResponseEntity<FeedbackDTO> addFeedback(@RequestBody FeedbackDTO feedbackDTO) {
+        System.out.println("Received feedback: " + feedbackDTO);
+        
+        if (feedbackDTO.getUserId() == null || feedbackDTO.getProductId() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        FeedbackDTO savedFeedback = feedbackService.addFeedback(feedbackDTO);
+        return new ResponseEntity<>(savedFeedback, HttpStatus.CREATED);
     }
+
+
+
+
 
     @GetMapping("/{feedbackId}")
     public FeedbackDTO getFeedbackById(@PathVariable Long feedbackId) {

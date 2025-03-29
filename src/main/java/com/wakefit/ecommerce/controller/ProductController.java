@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.wakefit.ecommerce.dto.FeedbackDTO;
 import com.wakefit.ecommerce.dto.ProductDTO;
+import com.wakefit.ecommerce.dto.PurchaseDTO;
 import com.wakefit.ecommerce.exception.ResourceNotFoundException;
 import com.wakefit.ecommerce.service.FeedbackService;
 import com.wakefit.ecommerce.service.ProductService;
@@ -87,4 +88,22 @@ public class ProductController {
         }
         return ResponseEntity.ok(feedbacks);
     }
+    
+    
+
+    @PostMapping("/products/purchase")
+    public ResponseEntity<String> purchaseProduct(@RequestBody PurchaseDTO purchaseDTO) {
+        try {
+            productService.purchaseProduct(purchaseDTO.getProductId(), purchaseDTO.getQuantity());
+            return ResponseEntity.ok("Purchase successful! Stock updated.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during purchase.");
+        }
+    }
+
+    
 }

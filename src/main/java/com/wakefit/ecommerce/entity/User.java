@@ -1,11 +1,14 @@
 package com.wakefit.ecommerce.entity;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,9 +16,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -37,13 +45,18 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "username", length = 30,  unique = true)
+    @NotBlank(message = "Username cannot be blank")
+    @Size(min = 3, max = 30, message = "Username must be between 3 and 30 characters")
+    @Column(name = "username", length = 30, unique = true)
     private String userName;
 
+    @NotBlank(message = "Password cannot be blank")
     @Column(name = "password")
-    private String password;
+    private String password; 
 
-    @Column(name = "email", length = 50,  unique = true)
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email cannot be blank")
+    @Column(name = "email", length = 50, unique = true)
     private String email;
 
     @Column(name = "first_name", length = 30)
@@ -57,12 +70,10 @@ public class User {
     @Column(name = "mob_no", length = 10, unique = true)
     private String mobNo;
 
-    @Column(name = "role")
-    private String role; // e.g., customer, admin
+   
+   
 
-
-
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Order> orders;
 
@@ -77,5 +88,12 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private Cart cart;
+    
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+      name = "user_roles", 
+      joinColumns = @JoinColumn(name = "user_id"), 
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 
 }

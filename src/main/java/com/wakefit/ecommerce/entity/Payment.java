@@ -2,6 +2,8 @@ package com.wakefit.ecommerce.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +12,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,18 +34,23 @@ public class Payment {
     private Long paymentId;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @PastOrPresent(message = "Payment date cannot be in the future")
     @Column(name = "payment_date")
     private Date paymentDate;
 
-    @Column(name = "amount")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than 0")
+    @Column(name = "amount", nullable = false)
     private double amount;
 
-    @Column(name = "payment_method")
+    @NotBlank(message = "Payment method is required")
+    @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
 
-    @Column(name = "payment_status")
+    @NotBlank(message = "Payment status is required")
+    @Column(name = "payment_status", nullable = false)
     private String paymentStatus;
 }

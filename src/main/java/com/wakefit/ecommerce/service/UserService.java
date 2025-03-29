@@ -12,4 +12,6 @@ public interface UserService {
     void deleteUser(Long userId);
     User updateUser(Long userId, User user);
     long getUserCount();
+	User register(User user);
+   
 }
