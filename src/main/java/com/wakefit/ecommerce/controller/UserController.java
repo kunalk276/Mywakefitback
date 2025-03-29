@@ -29,7 +29,7 @@ import com.wakefit.ecommerce.serviceimplement.UserDetailsServiceImpl;
 import jakarta.validation.Valid;
 
 
-@CrossOrigin(origins = {"http://localhost:4200", "https://mywakefit-kunal-kadams-projects.vercel.app"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://mywakefit-kunal-kadams-projects.vercel.app","https://mywakefit.vercel.app"})
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {

@@ -26,7 +26,7 @@ import com.wakefit.ecommerce.repository.CartRepository;
 import com.wakefit.ecommerce.repository.UserRepository;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4200", "https://mywakefit-kunal-kadams-projects.vercel.app"}) 
+@CrossOrigin(origins = {"http://localhost:4200", "https://mywakefit-kunal-kadams-projects.vercel.app","https://mywakefit.vercel.app"})
 public class AuthController {
 
     @Autowired
