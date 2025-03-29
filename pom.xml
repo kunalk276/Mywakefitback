@@ -103,7 +103,7 @@
         <artifactId>mysql-connector-java</artifactId>
         <scope>runtime</scope>
     </dependency>
-    <!-- Other dependencies -->
+
 
 <dependency>
     <groupId>io.jsonwebtoken</groupId>
