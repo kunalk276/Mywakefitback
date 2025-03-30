@@ -5,7 +5,7 @@ services:
     image: mysql:8.0
     container_name: wakefit-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ADI#27#nal  # Set only the root password
+      MYSQL_ROOT_PASSWORD: ADI#27#nal  
       MYSQL_DATABASE: wakefitfurniture
     ports:
       - "3306:3306"
