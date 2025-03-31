@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,7 +42,6 @@ public class AppSecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -49,8 +49,8 @@ public class AppSecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> new org.springframework.web.cors.CorsConfiguration().applyPermitDefaultValues()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/v1/users/login", "/api/v1/users/register").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS Preflight
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/login", "/api/v1/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAuthority("Admin")
@@ -62,12 +62,13 @@ public class AppSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/cart/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.POST, "/api/v1/address/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.GET, "/api/v1/address/**").hasAnyAuthority("Admin", "customer")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/order**").hasAnyAuthority("Admin", "customer")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/order**").hasAnyAuthority("Admin", "customer")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/order/**").hasAnyAuthority("Admin", "customer")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/order/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cart/**").hasAuthority("customer")
                         .anyRequest().authenticated()
                 )
-                .httpBasic(httpBasic -> httpBasic.disable());
+                .httpBasic(Customizer.withDefaults())
+                .logout(logout -> logout.disable()); // Disable logout since we use stateless auth
 
         return http.build();
     }

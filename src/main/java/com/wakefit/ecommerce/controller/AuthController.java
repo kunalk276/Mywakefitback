@@ -5,6 +5,8 @@ import com.wakefit.ecommerce.entity.Cart;
 import com.wakefit.ecommerce.entity.Role;
 import com.wakefit.ecommerce.entity.User;
 import com.wakefit.ecommerce.serviceimplement.UserDetailsServiceImpl;
+import com.wakefit.ecommerce.repository.CartRepository;
+import com.wakefit.ecommerce.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,22 +15,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import com.wakefit.ecommerce.repository.CartRepository;
-import com.wakefit.ecommerce.repository.UserRepository;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = {
         "http://localhost:4200",
         "https://mywakefit-kunal-kadams-projects.vercel.app",
         "https://mywakefit.vercel.app"
-}, allowCredentials = "true") // Allow credentials if needed
+}, allowCredentials = "true")
+@RequestMapping("/api/v1/users")
 public class AuthController {
 
     @Autowired
@@ -43,10 +42,10 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/api/v1/users/login")
+    @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         try {
-            // Authenticate the user
+            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUserName(),
@@ -56,20 +55,18 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Retrieve the authenticated user's details
+            // Fetch user details
             User user = userDetailsService.getUserByUserName(loginRequest.getUserName());
 
             // Ensure user has a cart
-            Cart userCart = user.getCart();
-            if (userCart == null) {
-                userCart = new Cart();
-                userCart.setUser(user);
-                userCart = cartRepository.save(userCart);  // Save new cart in DB
-                user.setCart(userCart);
-                userRepository.save(user);  // Update user with new cart
-            }
+            Cart userCart = Optional.ofNullable(user.getCart())
+                    .orElseGet(() -> {
+                        Cart newCart = new Cart();
+                        newCart.setUser(user);
+                        return cartRepository.save(newCart);
+                    });
 
-            // Prepare the response with user details
+            // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("userId", user.getUserId());
             response.put("userName", user.getUserName());
@@ -80,8 +77,8 @@ public class AuthController {
             response.put("role", user.getRoles().stream()
                     .map(Role::getRole)
                     .findFirst()
-                    .orElse("No role assigned"));
-            response.put("cartId", userCart.getCartId()); // Ensure valid cart ID
+                    .orElse("USER")); // Default role if not assigned
+            response.put("cartId", userCart.getCartId());
 
             return ResponseEntity.ok(response);
 
