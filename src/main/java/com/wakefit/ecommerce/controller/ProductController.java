@@ -17,7 +17,7 @@ import com.wakefit.ecommerce.service.ProductService;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("/api/v3")
+@RequestMapping("/api/v1")
 public class ProductController {
 
     @Autowired
