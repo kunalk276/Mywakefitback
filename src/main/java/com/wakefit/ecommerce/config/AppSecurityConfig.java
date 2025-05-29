@@ -50,7 +50,7 @@ public class AppSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS Preflight
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users/login", "/api/v1/users/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/login", "/api/v1/users/login", "/api/v1/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyAuthority("Admin", "customer")
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAuthority("Admin")
